@@ -868,13 +868,19 @@
 						return true;
 					},
 					move: function() {
+						// `p` is an alias of CurrPiece
 						if (p.isNewPiece()) {
 							return;
 						}
+						// drawListCell redraw a list of coords; the second parameters is the css
+						// class to apply to the cell; if no class is passed, they are rendered as
+						// empty cells
 						Board.drawListCell(p.coords);
 						var newCoords = [];
 						var canMove = true;
 						for (var i in p.coords) {
+							// horizontalMovement and verticalMovement are set depending on pressed keys
+							// and loop iterations; not every loop iteration move the piece down
 							if (
 									(p.horizontalMovement == -1 && !p.canMoveLeft())
 									|| (p.horizontalMovement == 1 && !p.canMoveRight())
@@ -885,6 +891,7 @@
 								x: (p.coords[i].x + p.horizontalMovement)|0,
 								y: (p.coords[i].y + p.verticalMovement)|0
 							};
+							// rotationMovement is set depending on pressed keys
 							if (p.rotationMovement) {
 								var rotation = p.currType.rotations[p.rotation][i];
 								newCoord.x = newCoord.x + rotation[0];
@@ -897,6 +904,7 @@
 							newCoords.push(newCoord);
 						}
 
+						// if we can move, we update CurrPiece coords with the newCoords
 						if (canMove) {
 							p.coords = newCoords;
 							Board.drawListCell(p.coords, p.currType.name);
@@ -904,12 +912,15 @@
 								p.rotation = (p.rotation + 1) % 4;
 								p.rotationMovement = false;
 							}
+						// if not, we look if we can still move down
 						} else if (p.canMoveDown()) {
 							for (var i in p.coords) {
 								p.coords[i].y = (p.coords[i].y + p.verticalMovement)|0;
 							}
 							Board.drawListCell(p.coords, p.currType.name);
 							p.rotationMovement = false;
+						// otherwise, CurrPiece has found its new home; we save the new Board status,
+						// check if some rows are now completed and ask for a new CurrPiece
 						} else {
 							Board.setListStatus(Object.assign(p.coords), 1, p.currType.name);
 							Board.checkRows();
